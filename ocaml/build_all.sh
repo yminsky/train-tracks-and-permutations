@@ -3,4 +3,4 @@
 corebuild \
     -cflag -g -j 4 \
     -pkg core_extended,async \
-    cycle.cmo
+    permutation.cmo
