@@ -1,5 +1,3 @@
 syntax: glob
 *~
-*.cmo
-*.cmi
-*.cma
+_build/*
