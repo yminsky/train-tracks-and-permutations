@@ -1,7 +1,13 @@
 #!/usr/bin/env python2.7
 
-# permutation represented as a list [pi(1),...,pi(N)]
-# indexing a little painful because starts with 1 not 0.
+# First half of this is a bunch of permutation-handling routines, and then an experiment: 
+# Given a cycle c (i.e. (1,2,3,...,n) in cycle notation), and a randomly chosen involution of the form
+# T = (i1,j1)(i2,j2)...(i_{n/2},j_{n/2}), how often is Tc also a cycle?  Then if c1 and c2 are two cycles, how often are Tc1 and Tc2 simultaneously cycles?
+#
+# Second half is a refined version where we use a train track with random weights to build an interval exchange transformation, and from this two cycles c1 and c2, 
+# and now we want to be able to choose involutions T such that Tc1 and Tc2 are simultaneously cycles. (I have to explain this to you better...)
+
+# permutations represented as a list [pi(1),...,pi(N)], NOT in cycle notation.
 
 import random
 import pickle
