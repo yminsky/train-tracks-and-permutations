@@ -14,23 +14,23 @@ let count times f =
 let count1 n m =
   count m (fun () ->
     let scramble = P.rand n in
-    P.is_cycle (scramble @ P.rot1 n @ P.inverse scramble)
+    P.is_cycle (scramble <<< P.rot1 n <<< P.inverse scramble)
   )
 
 let count2 n m =
   let scramble = P.rand n in
-  let cyc = scramble @ P.rot1 n @ P.inverse scramble in
+  let cyc = scramble <<< P.rot1 n <<< P.inverse scramble in
   let scramble2 = P.rand n in
-  let cyc2 = scramble2 @ P.rot1 n @ P.inverse scramble2 in
+  let cyc2 = scramble2 <<< P.rot1 n <<< P.inverse scramble2 in
   count m (fun () ->
     let inv = P.involution n in
-    P.is_cycle (inv @ cyc)
-    && P.is_cycle (inv @ cyc2)
+    P.is_cycle (inv <<< cyc)
+    && P.is_cycle (inv <<< cyc2)
   )
 
 let count1r n m =
   let scramble = P.rand n in
-  count m (fun () -> P.is_cycle (P.involution n @ scramble))
+  count m (fun () -> P.is_cycle (P.involution n <<< scramble))
 
 
 (* Experiment 1 *)
