@@ -25,5 +25,6 @@ val involution : int -> t
 
 module Infix : sig
   (** compose *)
-  val (<<<) : t -> t -> t
+  val (++) : t -> t -> t
 end
+

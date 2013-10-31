@@ -45,7 +45,7 @@ let involution n =
   Array.concat [left;right]
 
 module Infix = struct
-  let (<<<) = compose
+  let (++) = compose
 end
 
 include Pretty_printer.Register (struct
