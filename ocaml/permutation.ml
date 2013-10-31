@@ -16,12 +16,12 @@ let rand n =
   t
 
 let compose p q =
-  assert (Array.length p = Array.length q);
-  Array.init (Array.length p) ~f:(fun i -> p.(q.(i)))
+  assert (length p = length q);
+  Array.init (length p) ~f:(fun i -> p.(q.(i)))
 
 let inverse t =
-  let inv = id (Array.length t) in
-  for i = 0 to Array.length t - 1 do
+  let inv = Array.create ~len:(length t) 0 in
+  for i = 0 to length t - 1 do
     inv.(t.(i)) <- i
   done;
   inv
@@ -36,7 +36,7 @@ let cycle_length t start =
   how_long_until ~target:start ~current:(next t start) ~so_far:1
 
 let is_cycle t =
-  cycle_length t 0 = Array.length t
+  cycle_length t 0 = length t
 
 let involution n =
   let half = rand (n/2) in
