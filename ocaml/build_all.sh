@@ -3,4 +3,4 @@
 corebuild \
     -cflag -g -j 4 \
     -pkg core_extended,async \
-    permutation.cmo
+    permutation.cmo experiments.byte

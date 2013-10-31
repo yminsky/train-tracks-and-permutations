@@ -38,12 +38,19 @@ let cycle_length t start =
 let is_cycle t =
   cycle_length t 0 = Array.length t
 
+let involution n =
+  let half = rand (n/2) in
+  let left = Array.map half ~f:(fun x -> x + n / 2) in
+  let right = inverse half in
+  Array.concat [left;right]
+
 module Infix = struct
   let (@) = compose
 end
 
 include Pretty_printer.Register (struct
-  type nonrec t = t
+  type z = t
+  type t = z
   let module_name = "Permutation"
   let to_string t =
     Array.sexp_of_t Int.sexp_of_t t

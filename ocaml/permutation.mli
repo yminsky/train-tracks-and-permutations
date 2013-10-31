@@ -19,6 +19,10 @@ val inverse : t -> t
 
 val is_cycle : t -> bool
 
+(** [involution n] is a random involution that exchanges 1..n/2 with
+    n/2+1...n *)
+val involution : int -> t
+
 module Infix : sig
   (** compose *)
   val (@) : t -> t -> t
