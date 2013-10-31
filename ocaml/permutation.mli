@@ -5,13 +5,13 @@ include Pretty_printer.S with type t := t
 
 val length : t -> int
 
-(** {9 Permutateion constructors} *)
+(** {9 Permutation builders} *)
 
 val id      : int -> t
 val rot1    : int -> t
 val rand    : int -> t
 
-(* Composes two permutations of the same length. *)
+(** Compose two permutations of the same length. *)
 val compose : t -> t -> t
 
 (** Finds a permutation such that [compose t (inverse t)] is the identity *)
