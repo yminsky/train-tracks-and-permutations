@@ -1,6 +1,7 @@
 open Core.Std
 
-type t with sexp, bin_io
+type t with sexp
+include Pretty_printer.S with type t := t
 
 val length : t -> int
 
@@ -17,3 +18,8 @@ val compose : t -> t -> t
 val inverse : t -> t
 
 val is_cycle : t -> bool
+
+module Infix : sig
+  (** compose *)
+  val (@) : t -> t -> t
+end

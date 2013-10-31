@@ -1,0 +1,7 @@
+#require "core";;
+#directory "_build";;
+#load "permutation.cmo";;
+open Core.Std;;
+open Permutation;;
+open Permutation.Infix;;
+#install_printer Permutation.pp;;

@@ -1,7 +1,6 @@
 open Core.Std
 
-type t = int array
-with sexp, bin_io
+type t = int array with sexp, compare
 
 let length = Array.length
 
@@ -38,3 +37,15 @@ let cycle_length t start =
 
 let is_cycle t =
   cycle_length t 0 = Array.length t
+
+module Infix = struct
+  let (@) = compose
+end
+
+include Pretty_printer.Register (struct
+  type nonrec t = t
+  let module_name = "Permutation"
+  let to_string t =
+    Array.sexp_of_t Int.sexp_of_t t
+    |> Sexp.to_string_hum
+end)
