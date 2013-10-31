@@ -116,6 +116,7 @@ def exp1(M):
         c2 = float(count2(N,M))
         print "N=",N," C1:",c1/M, "C2: ",c2/M, "C1^2: ", (c1/M)*(c1/M)
 
+exp1(M)
 
 # for N in range(2,40,2):
 #     c1 = count1r(N,M)

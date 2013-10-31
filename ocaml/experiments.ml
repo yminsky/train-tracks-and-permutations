@@ -12,9 +12,10 @@ let succ_ratio times f =
   loop ~times 0 // times
 
 let ratio1 n m =
+  let scramble = P.rand n in
+  let cyc = scramble ++ P.rot1 n ++ P.inverse scramble in
   succ_ratio m (fun () ->
-    let scramble = P.rand n in
-    P.is_cycle (scramble ++ P.rot1 n ++ P.inverse scramble)
+    P.is_cycle (P.involution n ++ cyc)
   )
 
 let ratio2 n m =
@@ -52,4 +53,6 @@ let exp1 m =
     |> sexp_of_exp1 |> Sexp.to_string_hum |> print_endline
   )
 
-let () = exp1 10_000
+let () =
+  Random.self_init ();
+  exp1 10_000
