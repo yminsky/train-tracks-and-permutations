@@ -3,7 +3,9 @@ open Core.Std
 open Permutation.Infix
 module P = Permutation
 
-let succ_ratio times f =
+(** [true_ratio n f] Runs [f] [n] times, and returns the ratio of those times
+    for which [f] returned [true] *)
+let true_ratio times f =
   let rec loop ~times count =
     if times = 0 then count
     else loop ~times:(times - 1)
@@ -14,7 +16,7 @@ let succ_ratio times f =
 let ratio1 n m =
   let scramble = P.rand n in
   let cyc = scramble ++ P.rot1 n ++ P.inverse scramble in
-  succ_ratio m (fun () ->
+  true_ratio m (fun () ->
     P.is_cycle (P.involution n ++ cyc)
   )
 
@@ -23,7 +25,7 @@ let ratio2 n m =
   let cyc = scramble ++ P.rot1 n ++ P.inverse scramble in
   let scramble2 = P.rand n in
   let cyc2 = scramble2 ++ P.rot1 n ++ P.inverse scramble2 in
-  succ_ratio m (fun () ->
+  true_ratio m (fun () ->
     let inv = P.involution n in
     P.is_cycle (inv ++ cyc)
     && P.is_cycle (inv ++ cyc2)
@@ -31,7 +33,7 @@ let ratio2 n m =
 
 let ratio1r n m =
   let scramble = P.rand n in
-  succ_ratio m (fun () -> P.is_cycle (P.involution n ++ scramble))
+  true_ratio m (fun () -> P.is_cycle (P.involution n ++ scramble))
 
 
 (* Experiment 1 *)

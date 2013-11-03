@@ -15,6 +15,25 @@ let rand n =
   Array.permute t;
   t
 
+let apply t i =
+  t.(i)
+
+let is_good_permutation t =
+  let t' = Array.copy t in
+  Array.sort ~cmp:Int.compare t';
+  let rec is_good i =
+    if i >= Array.length t' then true
+    else if t'.(i) <> i then false
+    else is_good (i + 1)
+  in
+  is_good 0
+
+let of_fn n f =
+  let t = Array.init n ~f in
+  if is_good_permutation t then t
+  else failwiths "Malformed permutation" t sexp_of_t
+
+
 let compose p q =
   assert (length p = length q);
   Array.init (length p) ~f:(fun i -> p.(q.(i)))
@@ -38,8 +57,9 @@ let cycle_length t start =
 let is_cycle t =
   cycle_length t 0 = length t
 
+(* What is an involution? *)
 let involution n =
-  let half = rand (n/2) in
+  let half = rand (n / 2) in
   let left = Array.map half ~f:(fun x -> x + n / 2) in
   let right = inverse half in
   Array.concat [left;right]

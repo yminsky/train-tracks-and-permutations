@@ -7,9 +7,11 @@ val length : t -> int
 
 (** {9 Permutation builders} *)
 
-val id      : int -> t
-val rot1    : int -> t
-val rand    : int -> t
+val id    : int -> t
+val rot1  : int -> t
+val rand  : int -> t
+val of_fn : int -> (int -> int) -> t
+val apply : t -> int -> int
 
 (** Compose two permutations of the same length. *)
 val compose : t -> t -> t

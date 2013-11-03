@@ -107,7 +107,7 @@ def count1r(N,M):
 
 # Now the experiment
 # N = 24
-M = 10000
+M = 50000
 
 def exp1(M):
     print "Cycle counting experiment, M=",M
