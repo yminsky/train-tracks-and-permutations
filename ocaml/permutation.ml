@@ -4,6 +4,7 @@ type t = int array with sexp, compare
 
 let length = Array.length
 
+
 let id n =
   Array.init n ~f:Fn.id
 
@@ -32,7 +33,6 @@ let of_fn n f =
   let t = Array.init n ~f in
   if is_good_permutation t then t
   else failwiths "Malformed permutation" t sexp_of_t
-
 
 let compose p q =
   assert (length p = length q);
@@ -69,10 +69,10 @@ module Infix = struct
 end
 
 include Pretty_printer.Register (struct
-  type z = t
-  type t = z
-  let module_name = "Permutation"
-  let to_string t =
-    Array.sexp_of_t Int.sexp_of_t t
-    |> Sexp.to_string_hum
-end)
+    type z = t
+    type t = z
+    let module_name = "Permutation"
+    let to_string t =
+      Array.sexp_of_t Int.sexp_of_t t
+      |> Sexp.to_string_hum
+  end)
