@@ -1,4 +1,4 @@
-.DEFAULT: experiments.native permutation.cmo
+all: experiments.native permutation.cmo
 
 FORCE:
 	true
@@ -7,6 +7,5 @@ FORCE:
 	corebuild \
 	    -cflag -g -j 4 \
 	    -pkg core_extended,async \
-	    -pkg pa_ounit \
 	    $@
 
