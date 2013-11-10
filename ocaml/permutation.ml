@@ -4,7 +4,6 @@ type t = int array with sexp, compare
 
 let length = Array.length
 
-
 let id n =
   Array.init n ~f:Fn.id
 
