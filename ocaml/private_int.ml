@@ -1,5 +1,8 @@
 open Core.Std
 
+(* Used for creating private integer types, to avoid confusion between
+   different kinds of int identifiers *)
+
 module type S = sig
   type t with sexp
   include Hashable   with type t := t
