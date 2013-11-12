@@ -14,3 +14,8 @@ let of_fn (f : Side.t -> 'a) =
   { top = f Top
   ; bot = f Bot
   }
+ 
+let map t ~f =
+  { top = f t.top
+  ; bot = f t.bot
+  }

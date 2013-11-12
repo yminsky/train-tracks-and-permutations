@@ -1,75 +1,38 @@
 open Core.Std
 open Common
 
-module type IET = sig
-  type t
+type branch_info =
+  { strands: Strand.t Interval.t
+  ; width: int
+  ; side: Side.t
+  }
 
-  val create
-    :  top : Branch.t list
-    -> bot : Branch.t list
-    -> widths : (Branch.t * int) list
-    -> t
+type t = { branch_by_strand : Branch.t Strand.Map.t Side_pair.t
+         ; branch_info : (branch_info * branch_info) Branch.Map.t
+         }
 
-  val lookup_branch
-    :  t
-    -> Strand.t
-    -> Side.t
-    -> Branch.t
+let lookup_branch t strand side =
+  Map.find_exn (Side_pair.get t.branch_by_strand side) strand
 
-  type branch_info =
-    { strands: Strand.t Interval.t
-    ; width: int
-    ; side: Side.t
-    }
+let lookup_branch_info t branch =
+  Map.find_exn t.branch_info branch
 
-  val lookup_branch_info
-    :  t
-    -> Branch.t
-    -> branch_info * branch_info
-end
-
-module M(IET:IET) = struct
-
-  (* Given a strand and a side in an IET, find the strand/side pair
-     that it is connected to by the branch in question *)
-  let find_next iet (strand, side) =
-    let (binfo1,binfo2) =
-      IET.lookup_branch iet strand side
-      |> IET.lookup_branch_info iet
-    in
-    (* Figure out the branch associated with this strand/side pair,
-       and the branch it's connected to *)
-    let my_binfo,other_binfo =
-      if Interval.contains binfo1.strands strand
-      then (binfo1,binfo2)
-      else (
-        assert (Interval.contains binfo2.strands strand);
-        (binfo2,binfo1)
+let create branches ~widths =
+  let widths = Branch.Map.of_alist_exn widths in
+  let index_branches side =
+    Side_pair.get branches side
+    |> List.map ~f:(fun branch ->
+        let width = Map.find_exn widths branch in
+        List.init width ~f:(fun _ -> branch)
       )
-    in
-    (* We want an orientable surface, so we flip the strand order when
-       reconnecting to the same side *)
-    let should_flip =
-      my_binfo.side = other_binfo.side
-    in
-    let other_strand =
-      let branch_start = Interval.lbound_exn my_binfo.strands in
-      let pos_in_branch = Strand.(strand - branch_start) in
-      if not should_flip then
-        let branch_start = Interval.lbound_exn other_binfo.strands in
-        Strand.(branch_start +: pos_in_branch)
-      else
-        let branch_end = Interval.ubound_exn other_binfo.strands in
-        Strand.(branch_end   -: pos_in_branch)
-    in
-    (other_strand,other_binfo.side)
-
-  let find_cycle iet start =
-    let rec loop current accum =
-      let next = find_next iet current in
-      if next = start then List.rev (current :: accum)
-      else loop next (current :: accum)
-    in
-    loop start []
+    |> List.concat
+    |> List.mapi ~f:(fun idx branch -> (Strand.of_int idx,branch))
+    |> Strand.Map.of_alist_exn
+  in
+  let branch_info =
+    assert false
+  in
+  { branch_by_strand = Side_pair.of_fn index_branches
+  ; branch_info
+  }
     
-end
