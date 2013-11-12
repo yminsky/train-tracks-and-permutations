@@ -1,11 +1,13 @@
-all: experiments.native permutation.cmo
+all: experiments.native permutation.cmo iet.cmo
 
 FORCE:
 	true
 
 %.native %.byte %.cmo: FORCE
 	corebuild \
-	    -cflag -g -j 4 \
-	    -pkg core_extended,async \
+	    -j 4 \
+	    -cflag -g \
+	    -cflags -w,-40 \
+	    -pkg core,async \
 	    $@
 
