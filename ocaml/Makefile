@@ -1,4 +1,4 @@
-all: experiments.native permutation.cmo iet.cmo
+all: experiments.native permutation.cmo iet.cmo side_pair.cmo
 
 FORCE:
 	true
