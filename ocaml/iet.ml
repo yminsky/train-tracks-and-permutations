@@ -9,6 +9,7 @@ with sexp
 
 type t = { branch_by_strand : Branch.t Strand.Map.t Side_pair.t
          ; attachments : (attachment * attachment) Branch.Map.t
+         ; num_strands : int
          }
 with sexp
 
@@ -17,6 +18,8 @@ let lookup_branch t strand side =
 
 let lookup_attachments t branch =
   Map.find_exn t.attachments branch
+
+let num_strands t = t.num_strands
 
 type annotated_branch =
   { start: Strand.t
@@ -69,7 +72,9 @@ let create branches ~widths =
                  <:sexp_of<Branch.t>>
       )
   in
-  { branch_by_strand; attachments }
+  let num_strands = Map.length branch_by_strand.top in
+  assert (num_strands = Map.length branch_by_strand.bot);
+  { branch_by_strand; attachments; num_strands }
     
 
 let create_simple branches ~widths =

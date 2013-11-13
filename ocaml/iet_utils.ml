@@ -3,7 +3,7 @@ open Common
 
 
 let in_range (low,high) x =
-  x >= low && x <= high
+  Strand.(x >= low && x <= high)
 
 (* Given a strand and a side in an IET, find the strand/side pair
    that it is connected to by the branch in question *)
@@ -46,3 +46,6 @@ let find_cycle iet start =
     else loop next (current :: accum)
   in
   loop start []
+
+let cycle_is_complete iet cycle =
+  List.length cycle = 2 * Iet.num_strands iet
