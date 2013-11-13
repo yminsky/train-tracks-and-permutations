@@ -8,6 +8,6 @@ FORCE:
 	    -j 4 \
 	    -cflag -g \
 	    -cflags -w,-40 \
-	    -pkg core,async \
+	    -pkg core \
 	    $@
 
