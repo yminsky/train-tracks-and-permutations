@@ -10,12 +10,14 @@ module type S = sig
   val (+:) : t -> int -> t
   val (-:) : t -> int -> t
   val (-) : t -> t -> int
+  val zero : t
   val of_int : int -> t
   val to_int : t -> int
 end
 
 module M = struct
   include Int
+  let zero = 0
   let (+:) x y = x + y
   let (-:) x y = x - y
   let (-) x y = x - y

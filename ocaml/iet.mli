@@ -1,11 +1,16 @@
 open Core.Std
 open Common
 
-type t
+type t with sexp
 
 val create
   :  Branch.t list Side_pair.t
-  -> widths : (Branch.t * int) list
+  -> widths : int Branch.Map.t
+  -> t
+
+val create_simple
+  : int list Side_pair.t
+  -> widths:int list
   -> t
 
 val lookup_branch

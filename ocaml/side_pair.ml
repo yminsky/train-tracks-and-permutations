@@ -19,3 +19,6 @@ let map t ~f =
   { top = f t.top
   ; bot = f t.bot
   }
+
+let change t side ~f =
+  set t side (f (get t side))

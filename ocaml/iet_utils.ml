@@ -6,8 +6,8 @@ open Common
    that it is connected to by the branch in question *)
 let find_next iet (strand, side) =
   let (binfo1,binfo2) =
-    IET.lookup_branch iet strand side
-    |> IET.lookup_branch_info iet
+    Iet.lookup_branch iet strand side
+    |> Iet.lookup_branch_info iet
   in
   (* Figure out the branch associated with this strand/side pair,
      and the branch it's connected to *)
