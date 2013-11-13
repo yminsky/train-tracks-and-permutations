@@ -7,16 +7,11 @@ let iet =
     ~widths:[6;2;3;4;2]
 
 let () =
-  iet
-  |> <:sexp_of<Iet.t>>
-  |> Sexp.to_string_hum
-  |> print_endline
+  sexp_print <:sexp_of<Iet.t>> iet
 
 let print_cycle (strand,side) =
   Iet_utils.find_cycle iet (Strand.of_int strand,side) 
-  |> <:sexp_of<(Strand.t * Side.t) list>>
-  |> Sexp.to_string_hum
-  |> print_endline
+  |> sexp_print <:sexp_of<(Strand.t * Side.t) list>>
 
 let () =
   print_cycle (0,Top);
