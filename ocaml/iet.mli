@@ -9,7 +9,7 @@ val create
   -> t
 
 val create_simple
-  : int list Side_pair.t
+  :  int list Side_pair.t
   -> widths:int list
   -> t
 
@@ -19,13 +19,12 @@ val lookup_branch
   -> Side.t
   -> Branch.t
 
-type branch_info =
-  { strands: Strand.t Interval.t
-  ; width: int
-  ; side: Side.t
+type attachment =
+  { strand_range : Strand.t * Strand.t
+  ; side    : Side.t
   }
 
-val lookup_branch_info
+val lookup_attachments
   :  t
   -> Branch.t
-  -> branch_info * branch_info
+  -> attachment * attachment

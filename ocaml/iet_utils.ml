@@ -2,39 +2,42 @@ open Core.Std
 open Common
 
 
+let in_range (low,high) x =
+  x >= low && x <= high
+
 (* Given a strand and a side in an IET, find the strand/side pair
    that it is connected to by the branch in question *)
 let find_next iet (strand, side) =
-  let (binfo1,binfo2) =
+  let (attach1,attach2) =
     Iet.lookup_branch iet strand side
-    |> Iet.lookup_branch_info iet
+    |> Iet.lookup_attachments iet
   in
   (* Figure out the branch associated with this strand/side pair,
      and the branch it's connected to *)
-  let my_binfo,other_binfo =
-    if Interval.contains binfo1.strands strand
-    then (binfo1,binfo2)
+  let (mine,other) =
+    if in_range attach2.strand_range strand
+    then (attach1,attach2)
     else (
-      assert (Interval.contains binfo2.strands strand);
-      (binfo2,binfo1)
+      assert (in_range attach2.strand_range strand);
+      (attach2,attach1)
     )
   in
   (* We want an orientable surface, so we flip the strand order when
      reconnecting to the same side *)
   let should_flip =
-    my_binfo.side = other_binfo.side
+    mine.side = other.side
   in
   let other_strand =
-    let branch_start = Interval.lbound_exn my_binfo.strands in
+    let branch_start = fst mine.strand_range in
     let pos_in_branch = Strand.(strand - branch_start) in
     if not should_flip then
-      let branch_start = Interval.lbound_exn other_binfo.strands in
-      Strand.(branch_start +: pos_in_branch)
+      let other_branch_start = fst other.strand_range in
+      Strand.(other_branch_start +: pos_in_branch)
     else
-      let branch_end = Interval.ubound_exn other_binfo.strands in
-      Strand.(branch_end   -: pos_in_branch)
+      let other_branch_end = snd other.strand_range in
+      Strand.(other_branch_end   -: pos_in_branch)
   in
-  (other_strand,other_binfo.side)
+  (other_strand,other.side)
 
 let find_cycle iet start =
   let rec loop current accum =
