@@ -26,17 +26,21 @@ type annotated_branch =
   }
 with sexp
 
-type t = { branch_by_strand : Branch.t Strand.Map.t Side_pair.t
-         ; attachments : (attachment * attachment) Branch.Map.t
-         ; num_strands : int
+type t = { branch_by_strand : Branch.t array Side_pair.t
+         ; attachments_by_branch : (attachment * attachment) array
          }
 with sexp
 
+let num_strands t = Array.length t.branch_by_strand.top
+
 let lookup_branch t (strand,side) =
-  Map.find_exn (Side_pair.get t.branch_by_strand side) strand
+  let strand_num = Strand.to_int strand in
+  if strand_num > Array.length t.branch_by_strand.top
+  then failwithf "Unknown strand: %d" strand_num ()
+  else (Side_pair.get t.branch_by_strand side).(Strand.to_int strand)
 
 let lookup_attachments t branch =
-  Map.find_exn t.attachments branch
+  t.attachments_by_branch.(Branch.to_int branch)
 
 let lookup_strand_info t ostrand =
   let branch = lookup_branch t ostrand in
@@ -54,8 +58,6 @@ let lookup_strand_info t ostrand =
     )
   in
   { branch; this; other } 
-
-let num_strands t = t.num_strands
 
 let index_branches_by_strand annotated_branches =
   List.fold annotated_branches
@@ -78,6 +80,24 @@ let annotate_branches branches ~widths side =
          {side; start; branch; width} :: acc)
       )
   |> snd
+
+(* Converts a map with a Private_int as its index into the
+   corresponding array.  Requires that the map indices go from 0 to
+   len - 1. *)
+let map_to_array
+    (type a)
+    map
+    (module Id : Private_int.S with type t = a)
+    id_name
+  =
+  match Map.max_elt map with
+  | None -> [| |]
+  | Some (max_branch,_) ->
+    Array.init (Id.to_int max_branch + 1) ~f:(fun branch_num ->
+        match Map.find map (Id.of_int branch_num) with
+        | None -> failwithf "%s number gap at %d" id_name branch_num ()
+        | Some x -> x)
+
 
 let create branches ~widths =
   let annotated_branches =
@@ -105,12 +125,18 @@ let create branches ~widths =
                  <:sexp_of<Branch.t>>
       )
   in
-  let top_strands = Map.length branch_by_strand.top in
-  let bot_strands = Map.length branch_by_strand.bot in
-  let t = { branch_by_strand
-          ; attachments
-          ; num_strands = top_strands }
+  let attachments_by_branch =
+    map_to_array attachments (module Branch) "branch"
   in
+  let branch_by_strand = 
+    Side_pair.map branch_by_strand ~f:(fun map ->
+        map_to_array map (module Strand) "strand")
+  in
+  let t = { branch_by_strand
+          ; attachments_by_branch }
+  in
+  let top_strands = Array.length branch_by_strand.top in
+  let bot_strands = Array.length branch_by_strand.bot in
   if top_strands <> bot_strands then
     failwiths "Mismatch between number of top_strands and bot_strands"
       (top_strands,bot_strands,t)

@@ -35,4 +35,6 @@ with sexp
 
 val lookup_strand_info : t -> (Strand.t * Side.t) -> strand_info
 
+(* Given an oriented trand, finds the next oriented strand under this
+   IET *)
 val next : t -> (Strand.t * Side.t) -> (Strand.t * Side.t)
