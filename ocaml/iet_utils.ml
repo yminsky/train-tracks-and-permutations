@@ -39,7 +39,7 @@ let find_next iet (strand, side) =
       let other_branch_end = snd other.strand_range in
       Strand.(other_branch_end   -: pos_in_branch)
   in
-  (other_strand,other.side)
+  (other_strand, Side.flip other.side)
 
 let find_cycle iet start =
   let rec loop current accum =
