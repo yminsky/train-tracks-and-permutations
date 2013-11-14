@@ -10,4 +10,4 @@ let find_cycle iet start =
   loop start []
 
 let cycle_is_complete iet cycle =
-  List.length cycle = 2 * Iet.num_strands iet
+  List.length cycle = Iet.num_strands iet
