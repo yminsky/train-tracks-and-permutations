@@ -12,6 +12,7 @@ type strand_info =
   ; this   :  attachment
   ; other  : attachment
   }
+with sexp
 
 let is_in_attachment {strand_range=(lo,hi); side = att_side} (strand,side) =
   Strand.(strand >=lo && strand <= hi)

@@ -31,6 +31,7 @@ type strand_info =
   ; this   : attachment
   ; other  : attachment
   }
+with sexp
 
 val lookup_strand_info : t -> (Strand.t * Side.t) -> strand_info
 
