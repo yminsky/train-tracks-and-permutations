@@ -7,6 +7,12 @@ type attachment =
   }
 with sexp
 
+type strand_info =
+  { branch : Branch.t
+  ; this   :  attachment
+  ; other  : attachment
+  }
+
 let is_in_attachment {strand_range=(lo,hi); side = att_side} (strand,side) =
   Strand.(strand >=lo && strand <= hi)
   && side = att_side
@@ -21,16 +27,32 @@ with sexp
 
 type t = { branch_by_strand : Branch.t Strand.Map.t Side_pair.t
          ; attachments : (attachment * attachment) Branch.Map.t
-         (* ; annotated_branches : annotated_branch list *)
          ; num_strands : int
          }
 with sexp
 
-let lookup_branch t strand side =
+let lookup_branch t (strand,side) =
   Map.find_exn (Side_pair.get t.branch_by_strand side) strand
 
 let lookup_attachments t branch =
   Map.find_exn t.attachments branch
+
+let lookup_strand_info t ostrand =
+  let branch = lookup_branch t ostrand in
+  let (att1,att2) = lookup_attachments t branch in
+  let (this,other) =
+    if is_in_attachment att1 ostrand then 
+      (att1,att2)
+    else (
+      if not (is_in_attachment att2 ostrand) then
+        failwiths "Strand is not in either range"
+          (att1,att2,ostrand)
+        <:sexp_of<attachment * attachment * (Strand.t * Side.t)>>
+      ;
+      (att2,att1)
+    )
+  in
+  { branch; this; other } 
 
 let num_strands t = t.num_strands
 
@@ -86,14 +108,12 @@ let create branches ~widths =
   let bot_strands = Map.length branch_by_strand.bot in
   let t = { branch_by_strand
           ; attachments
-          (* ; annotated_branches*)
           ; num_strands = top_strands }
   in
   if top_strands <> bot_strands then
     failwiths "Mismatch between number of top_strands and bot_strands"
       (top_strands,bot_strands,t)
-      <:sexp_of<int * int * t>>
-  ;
+      <:sexp_of<int * int * t>>;
   t
     
 
@@ -105,6 +125,33 @@ let create_simple branches ~widths =
         Map.add map ~key:branch ~data:width)
   in
   create branches ~widths
+
+(* Given a strand and a side in an IET, find the strand/side pair
+   that it is connected to by the branch in question *)
+let next iet ostrand =
+  (* Figure out the branch associated with this strand/side pair,
+     and the branch it's connected to *)
+  let ({this;other;branch=_} : strand_info) =
+    lookup_strand_info iet ostrand
+  in
+  (* We want an orientable surface, so we flip the strand order when
+     reconnecting to the same side *)
+  let should_flip =
+    this.side = other.side
+  in
+  let other_strand =
+    let branch_start = fst this.strand_range in
+    let pos_in_branch = Strand.(fst ostrand - branch_start) in
+    if not should_flip then
+      let other_branch_start = fst other.strand_range in
+      Strand.(other_branch_start +: pos_in_branch)
+    else
+      let other_branch_end = snd other.strand_range in
+      Strand.(other_branch_end   -: pos_in_branch)
+  in
+  (other_strand, Side.flip other.side)
+
+
 
 
 include Pretty_printer.Register (struct
