@@ -2,9 +2,6 @@ open Core.Std
 open Common
 
 
-let in_range (low,high) x =
-  Strand.(x >= low && x <= high)
-
 (* Given a strand and a side in an IET, find the strand/side pair
    that it is connected to by the branch in question *)
 let find_next iet (strand, side) =
@@ -15,10 +12,15 @@ let find_next iet (strand, side) =
   (* Figure out the branch associated with this strand/side pair,
      and the branch it's connected to *)
   let (mine,other) =
-    if in_range attach2.strand_range strand
+    if Iet.is_in_attachment attach1 (strand,side)
     then (attach1,attach2)
     else (
-      assert (in_range attach2.strand_range strand);
+      if not (Iet.is_in_attachment attach2 (strand,side)) then
+        failwiths "Strand is not in either range"
+          (attach1,attach2,(strand,side))
+        <:sexp_of<Iet.attachment * Iet.attachment * (Strand.t * Side.t)>>
+      ;
+      (* assert (in_range attach2.strand_range strand); *)
       (attach2,attach1)
     )
   in

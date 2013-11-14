@@ -1,7 +1,7 @@
+#warnings "-40";;
 #require "core";;
 #directory "_build";;
-#load "permutation.cmo";;
+#load_rec "iet_utils.cmo";;
 #require "core.top"
 open Core.Std;;
-open Permutation;;
-open Permutation.Infix;;
+open Common;;

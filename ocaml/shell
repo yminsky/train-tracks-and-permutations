@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
-./build_all.sh
+make -s iet_utils.byte
 utop -init ./ocamlinit
 

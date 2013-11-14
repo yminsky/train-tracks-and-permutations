@@ -7,6 +7,7 @@ module type S = sig
   type t with sexp
   include Hashable   with type t := t
   include Comparable with type t := t
+  include Pretty_printer.S with type t := t
   val (+:) : t -> int -> t
   val (-:) : t -> int -> t
   val (-) : t -> t -> int

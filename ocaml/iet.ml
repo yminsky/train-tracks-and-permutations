@@ -7,8 +7,21 @@ type attachment =
   }
 with sexp
 
+let is_in_attachment {strand_range=(lo,hi); side = att_side} (strand,side) =
+  Strand.(strand >=lo && strand <= hi)
+  && side = att_side
+
+type annotated_branch =
+  { start: Strand.t
+  ; branch: Branch.t
+  ; width: int
+  ; side: Side.t
+  }
+with sexp
+
 type t = { branch_by_strand : Branch.t Strand.Map.t Side_pair.t
          ; attachments : (attachment * attachment) Branch.Map.t
+         (* ; annotated_branches : annotated_branch list *)
          ; num_strands : int
          }
 with sexp
@@ -21,38 +34,35 @@ let lookup_attachments t branch =
 
 let num_strands t = t.num_strands
 
-type annotated_branch =
-  { start: Strand.t
-  ; branch: Branch.t
-  ; width: int
-  ; side: Side.t
-  }
+let index_branches_by_strand annotated_branches =
+  List.fold annotated_branches
+    ~init:(Side_pair.of_fn (fun _ -> Strand.Map.empty))
+    ~f:(fun maps {side;start;branch;width} ->
+        Side_pair.change maps side ~f:(fun map ->
+            List.fold (List.range 0 width)
+              ~init:map
+              ~f:(fun map i ->
+                  let strand = Strand.(start +: i) in
+                  Map.add map ~key:strand ~data:branch
+                )))
+
+let annotate_branches branches ~widths side = 
+  List.fold (Side_pair.get branches side) ~init:(Strand.zero,[])
+    ~f:(fun (start,acc) branch ->
+        let width = Map.find_exn widths branch in
+        let start' = Strand.(start +: width) in
+        (start',
+         {side; start; branch; width} :: acc)
+      )
+  |> snd
 
 let create branches ~widths =
-  let annotate_branches side = 
-    List.fold (Side_pair.get branches side) ~init:(Strand.zero,[])
-      ~f:(fun (start,acc) branch ->
-          let width = Map.find_exn widths branch in
-          let start' = Strand.(start +: Int.(width - 1)) in
-          (start',
-           {side; start; branch; width} :: acc)
-        )
-    |> snd
-  in
   let annotated_branches =
-    annotate_branches Top @ annotate_branches Bot
+    let of_side side = annotate_branches branches ~widths side in
+    of_side Top @ of_side Bot
   in
-  let branch_by_strand = 
-    List.fold annotated_branches
-      ~init:(Side_pair.of_fn (fun _ -> Strand.Map.empty))
-      ~f:(fun maps {side;start;branch;width} ->
-          Side_pair.change maps side ~f:(fun map ->
-              List.fold (List.range 0 width)
-                ~init:map
-                ~f:(fun map i ->
-                    let strand = Strand.(start +: i) in
-                    Map.add map ~key:strand ~data:branch
-                  )))
+  let branch_by_strand =
+    index_branches_by_strand annotated_branches
   in
   let attachments =
     annotated_branches
@@ -72,9 +82,19 @@ let create branches ~widths =
                  <:sexp_of<Branch.t>>
       )
   in
-  let num_strands = Map.length branch_by_strand.top in
-  assert (num_strands = Map.length branch_by_strand.bot);
-  { branch_by_strand; attachments; num_strands }
+  let top_strands = Map.length branch_by_strand.top in
+  let bot_strands = Map.length branch_by_strand.bot in
+  let t = { branch_by_strand
+          ; attachments
+          (* ; annotated_branches*)
+          ; num_strands = top_strands }
+  in
+  if top_strands <> bot_strands then
+    failwiths "Mismatch between number of top_strands and bot_strands"
+      (top_strands,bot_strands,t)
+      <:sexp_of<int * int * t>>
+  ;
+  t
     
 
 let create_simple branches ~widths =
@@ -86,3 +106,11 @@ let create_simple branches ~widths =
   in
   create branches ~widths
 
+
+include Pretty_printer.Register (struct
+    type z = t
+    type t = z
+    let module_name = "Iet"
+    let to_string t =
+      sexp_of_t t |> Sexp.to_string_hum
+  end)

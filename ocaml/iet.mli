@@ -2,6 +2,7 @@ open Core.Std
 open Common
 
 type t with sexp
+include Pretty_printer.S with type t := t
 
 (** {2 Creation functions} *)
 
@@ -29,6 +30,9 @@ type attachment =
   { strand_range : Strand.t * Strand.t
   ; side    : Side.t
   }
+with sexp
+
+val is_in_attachment : attachment -> (Strand.t * Side.t) -> bool
 
 val lookup_attachments
   :  t

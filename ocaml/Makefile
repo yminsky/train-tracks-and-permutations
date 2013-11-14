@@ -1,4 +1,4 @@
-all: example.native experiments.native
+all: example.native example.byte
 
 FORCE:
 	true
