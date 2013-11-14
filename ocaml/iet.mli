@@ -20,22 +20,11 @@ val create_simple
 
 val num_strands : t -> int
 
-(** Find the branch you would be on for the given oriented strand *)
-val lookup_branch : t -> (Strand.t * Side.t)  -> Branch.t
-
 type attachment =
   { strand_range : Strand.t * Strand.t
   ; side : Side.t
   }
 with sexp
-
-val is_in_attachment : attachment -> (Strand.t * Side.t) -> bool
-
-val lookup_attachments
-  :  t
-  -> Branch.t
-  -> attachment * attachment
-
 
 type strand_info =
   { branch : Branch.t
