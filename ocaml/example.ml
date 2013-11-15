@@ -10,7 +10,7 @@ let run () =
   in
 *)
   let iet =
-    Iet.create_simple
+    Iet.create
       { top = [0;1;2]; bot = [1;0;2] }
       ~widths:[1;2;1]
   in

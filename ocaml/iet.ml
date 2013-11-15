@@ -9,7 +9,7 @@ with sexp
 
 type strand_info =
   { branch : Branch.t
-  ; this   :  attachment
+  ; this   : attachment
   ; other  : attachment
   }
 with sexp
@@ -19,15 +19,23 @@ let is_in_attachment {strand_range=(lo,hi); side = att_side} (strand,side) =
   && side = att_side
 
 type annotated_branch =
-  { start: Strand.t
-  ; branch: Branch.t
-  ; width: int
-  ; side: Side.t
+  { start  : Strand.t
+  ; branch : Branch.t
+  ; width  : int
+  ; side   : Side.t
   }
 with sexp
 
+module Format = struct
+  type t = { branches : Branch.t list Side_pair.t
+           ; widths : int array
+           }
+  with sexp
+end
+
 type t = { branch_by_strand : Branch.t array Side_pair.t
          ; attachments_by_branch : (attachment * attachment) array
+         ; format : Format.t
          }
 with sexp
 
@@ -99,7 +107,14 @@ let map_to_array
         | Some x -> x)
 
 
-let create branches ~widths =
+let of_format (format:Format.t) =
+  let branches = format.branches in
+  let widths =
+    Array.foldi format.widths
+      ~init:Branch.Map.empty
+      ~f:(fun idx acc width ->
+          Map.add acc ~key:(Branch.of_int idx) ~data:width)
+  in
   let annotated_branches =
     let of_side side = annotate_branches branches ~widths side in
     of_side Top @ of_side Bot
@@ -133,7 +148,8 @@ let create branches ~widths =
         map_to_array map (module Strand) "strand")
   in
   let t = { branch_by_strand
-          ; attachments_by_branch }
+          ; attachments_by_branch
+          ; format }
   in
   let top_strands = Array.length branch_by_strand.top in
   let bot_strands = Array.length branch_by_strand.bot in
@@ -144,14 +160,18 @@ let create branches ~widths =
   t
     
 
-let create_simple branches ~widths =
+let diagnostic_sexp = sexp_of_t
+
+let sexp_of_t t = Format.sexp_of_t t.format
+let t_of_sexp sexp = 
+  let format = Format.t_of_sexp sexp in
+  try of_format format
+  with exn -> of_sexp_error_exn exn sexp
+
+let create branches ~widths =
   let branches = Side_pair.map branches ~f:(List.map ~f:Branch.of_int) in
-  let widths =
-    List.foldi widths ~init:Branch.Map.empty ~f:(fun idx map width ->
-        let branch = Branch.of_int idx in
-        Map.add map ~key:branch ~data:width)
-  in
-  create branches ~widths
+  let widths = Array.of_list widths in
+  of_format { branches; widths }
 
 (* Given a strand and a side in an IET, find the strand/side pair
    that it is connected to by the branch in question *)
