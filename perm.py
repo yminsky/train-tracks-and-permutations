@@ -130,7 +130,7 @@ exp1(M)
 # branches[1] lists them on bottom.
 
 # This example is genus 2.
-#branches = [ [0,1,2,0],[2,3,1,3]]
+# branches = [ [0,1,2,0],[2,3,1,3]]
 # number of strands in each branch. (need to satisfy switch condition!)
 #width = [7,13,19,7]   
 

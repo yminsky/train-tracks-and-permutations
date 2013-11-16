@@ -1,0 +1,76 @@
+* strand.ml:  Totally mysterious to me. 
+	    supposed to be definining a module "Strand" whose type t
+	    is a flavor of private_int, I think. 
+	    I can't figure out Pretty_printer.
+
+* branch.ml same confusion.
+
+* iet.ml: 
+
+** How do I parse this? 
+let is_in_attachment {strand_range=(lo,hi); side = att_side} (strand,side) =
+  Strand.(strand >=lo && strand <= hi)
+  && side = att_side
+
+
+(answer:   in the record {..} argument the fields are labeled --
+that's how it knows the type is "attachment" )
+(but also: "side" is used in at least two different ways here, an
+example of what seems to be a common habit that I find confusing.)
+
+** module and struct syntax: confused.
+
+what is module Format about?
+
+** num_strands: seems to be counting number of branches not number of
+stands? What am I missing? (oh, I see. branch_by_strand is an array
+indexed by strand number. its length is the total number of strands. )
+
+criticism: expressions like: 
+	   	       Strand.to_int strand
+make me wonder if it is really worth it to define Strand (or Branch) as a
+	   	       private_int. 
+
+** lookup_strand_info: returns a struct {branch; this; other}. This is
+the same structure as a "strand_info" type but it is not explicitly
+cast as such a type. does this somehow happen automatically/?
+
+
+** index_branches_by_strand:
+
+    ~init:(Side_pair.of_fn (fun _ -> Strand.Map.empty))
+
+    a. what is Strand.Map.empty??? And why define it this way?
+    wouldn't it be clearer to just describe the pair? 
+    something like
+        ~init: {Top:Strand.Map.empty, Bot:Strand.Map.empty}
+
+     I'm sure that this is not even remotely syntactically correct
+     but is there some version that is? 
+
+
+
+** annotate_branches:
+	need to think about how list.fold works
+	does "snd" mean second of a pair?
+	Map.find_exn: what is it doing? (_exn means it can raise an exception
+		      on error, right?)
+        
+	Don't quite understand what kind of object this function returns.
+
+"map" has several meanings. Do I understand them all? 
+
+* question about layout: what is the advantage of so many little files?
+Why not put all these module definitions together in one place? 
+
+Also: How are all the files linked together? in ocamlinit??
+
+* Real World Ocaml:
+Trying to use this as a reference...
+It would be nice if the online version had a good search
+capability! The index is an old-fashioned version of this, but it's
+actually typeset kind of badly: sub-entries are not indented or
+anything.
+
+Had a hard time finding various descriptions of Core things. Maybe
+there is not full Core documentation in there? 
