@@ -3,6 +3,10 @@
 	    is a flavor of private_int, I think. 
 	    I can't figure out Pretty_printer.
 
+** yminsky: Strand is just an example of a private int.  
+   The pretty-printer stuff you can mostly ignore.  It's 
+   there to make things look better in utop
+
 * branch.ml same confusion.
 
 * iet.ml: 
@@ -11,7 +15,6 @@
 let is_in_attachment {strand_range=(lo,hi); side = att_side} (strand,side) =
   Strand.(strand >=lo && strand <= hi)
   && side = att_side
-
 
 (answer:   in the record {..} argument the fields are labeled --
 that's how it knows the type is "attachment" )
@@ -22,6 +25,11 @@ example of what seems to be a common habit that I find confusing.)
 
 what is module Format about?
 
+*** yminsky: It's something I added to make the sexp-presentation a little
+    prettier and easier to manager.  Rather than having sexp-representation
+	by the internal data structure, I instead have it be that Format.t 
+	type.
+
 ** num_strands: seems to be counting number of branches not number of
 stands? What am I missing? (oh, I see. branch_by_strand is an array
 indexed by strand number. its length is the total number of strands. )
@@ -31,10 +39,17 @@ criticism: expressions like:
 make me wonder if it is really worth it to define Strand (or Branch) as a
 	   	       private_int. 
 
+response: I think it's a fairly small price to pay for clearer types
+(which are a good form of documentation) and better error checking.
+But that's something we'll see better as we build more code, I think.
+
 ** lookup_strand_info: returns a struct {branch; this; other}. This is
 the same structure as a "strand_info" type but it is not explicitly
 cast as such a type. does this somehow happen automatically/?
 
+*** yminsky: The type is inferred from the record fields, so, yes
+    it happens automatically.  One does need to get used to what
+	set of things the compiler does and doesn't infer for you.
 
 ** index_branches_by_strand:
 
@@ -45,25 +60,46 @@ cast as such a type. does this somehow happen automatically/?
     something like
         ~init: {Top:Strand.Map.empty, Bot:Strand.Map.empty}
 
-     I'm sure that this is not even remotely syntactically correct
-     but is there some version that is? 
-
-
+    I'm sure that this is not even remotely syntactically correct
+    but is there some version that is? 
+	
+	yminsky: A matter of taste.  I tend to lean towards writing things once rather
+	than twice, but the thing you wrote is entirely doable.  The code would be:
+	
+        ~init: { top = Strand.Map.empty; bot = Strand.Map.empty}
 
 ** annotate_branches:
 	need to think about how list.fold works
-	does "snd" mean second of a pair?
+	does "snd" mean second of a pair? yminsky: Yes.  This is part of the stdlib.
 	Map.find_exn: what is it doing? (_exn means it can raise an exception
 		      on error, right?)
+    yminsky: Yes, look the key up in the map, throw an exception if you don't find it.
         
 	Don't quite understand what kind of object this function returns.
 
 "map" has several meanings. Do I understand them all? 
 
+yminsky: basically just two: there's a function with the standard "map" signature,
+which is used for transforming the elements of a list.  The signature is
+
+    val map: 'a t -> ('a -> 'b) -> 'b t
+	
+And there's also the Map.t data structure, which is a functional data structure that
+represents a finite map from keys to values.
+
 * question about layout: what is the advantage of so many little files?
 Why not put all these module definitions together in one place? 
 
+yminsky: From my perspective, breaking it up into files with clear (and separate)
+interfaces makes the whole thing easier to read.  That way, you can mostly just
+look at the mli's and forget about the ml's when you're writing new code.
+
+
 Also: How are all the files linked together? in ocamlinit??
+
+yminsky: The makefile uses "corebuild", which infers the dependecies and links
+everything together accordingly.  The ocamlinit's #load_rec directive does
+something similar for the compiled files.
 
 * Real World Ocaml:
 Trying to use this as a reference...
@@ -72,5 +108,17 @@ capability! The index is an old-fashioned version of this, but it's
 actually typeset kind of badly: sub-entries are not indented or
 anything.
 
+** yminsky: The index is terrible.  We should add a google search button.
+
 Had a hard time finding various descriptions of Core things. Maybe
 there is not full Core documentation in there? 
+
+** The full Core documentation is here:
+
+https://ocaml.janestreet.com/ocaml-core/latest/doc/
+
+It's linked to from the RWO site, but not prominently enough.  The documentation
+generation is sadly broken in a number of spots.  We're working on getting
+it fixed.  But it is all there.  Note that much of the stuff in Core actually
+comes from a smaller library called Core_kernel.  Both of these are listed on 
+the page I linked to.
